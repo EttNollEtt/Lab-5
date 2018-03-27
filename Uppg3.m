@@ -1,47 +1,41 @@
-% Lab 5.3   Finita differensmetoden, ger noggrannhetsordning p = 2
+% Lab 5.3 noggrannhetsordning p = 2
 clear all, close all, clc
 
-%% Givna värden till uppgiften
-L = 2;          % Stavens längd [m] (X) 0-2
-a = 0.01;       % Tvärsnittsarean [m^2]
-k = 2.5;        % Värmeledningsförmåga [J/(K*m*s)]
-T0 = 300;       % Vänster ändpunkts temperatur [K]
-TL = 400;       % Höger ändpunkts temperatur [K]
+L = 2;          % Stavens lÃ¤ngd [m] (X) 0-2
+a = 0.01;       % TvÃ¤rsnittsarean [m^2]
+k = 2.5;        % VÃ¤rmeledningsfÃ¶rmÃ¥ga [J/(K*m*s)]
+T0 = 300;       % VÃ¤nster Ã¤ndpunkts temperatur [K]
+TL = 400;       % HÃ¶ger Ã¤ndpunkts temperatur [K]
 
-%% BB) (A på papper)
-
-% Beräknar med hjälp av finita differensmetoden  (y är temperaturen och x är läget i staven)
+% BerÃ¤knar med hjÃ¤lp av finita differensmetoden  (y Ã¤r temperaturen och x Ã¤r lÃ¤get i staven)
 %n=3
 n = 249;                                   % Steg vi tar (givet)      
-h = L/(n + 1);                             % Steglängd för beräkningen
-x = (1:n)'*h;                              % x-värden som antas
-e = ones(n,1);                             % Del i att skapa matrisen A
-A = spdiags([e h^2-2*e e], -1:1, n,n);     % Skapar matrisen A (blir en diagonalmatris 1 h^2-2 1 på diagonalen)
-RV = zeros(n,1);                           % Skapar matrisen för randvillkoren
-RV(1) = T0; RV(n) = TL;                    % Anger randvillkoren (dvs ändpunkterna)
-b = (h^2/k)*x-RV;                          % Skapar matrisen b
-y = A\b;                                   % Beräknar y-värdena
+h = L/(n + 1);                             % SteglÃ¤ngd fÃ¶r berÃ¤kningen
+x = (1:n)'*h;                              % x-vÃ¤rden som antas
+preA = ones(n,1);                             % Del i att skapa matrisen A
+A = spdiags([preA h^2-2*preA preA], -1:1, n,n);     % Skapar matrisen A (blir en diagonalmatris 1 h^2-2 1 pÃ¥ diagonalen)
+randV = zeros(n,1);                           % Skapar matrisen fÃ¶r randvillkoren
+randV(1) = T0; randV(n) = TL;                    % Anger randvillkoren (dvs Ã¤ndpunkterna)
+b = (h^2/k)*x-randV;                          % Skapar matrisen b
+y = A\b;                                   % BerÃ¤knar y-vÃ¤rdena
 
-tempmax = max(y);                             % Den maximala temperaturen i staven
-x1=[0,x',2];
-y1=[300,y',400];
-disp(['Den maximala temperaturen i staven är ' num2str(tempmax) ' K.'])
+maxTemp = max(y);                             % Den maximala temperaturen i staven
+xVard=[0,x',2];
+yVard=[300,y',400];
+disp(['Den maximala temperaturen i staven Ã¤r ' num2str(maxTemp) ' K.'])
 
 % Plottar temperaturskillnaden i staven
-plot(x1,y1);
-title('Temperaturskillnaden i staven beroende på läge')
-xlabel('Längden på cylindern  [m]')
-ylabel('Temperaturen i staven [K]')
+plot(xVard,yVard);
+xlabel('CylinderlÃ¤ngd')
+ylabel('Temperatur')
 grid on
 
-%% B)
+% BerÃ¤knar vÃ¤rmeflÃ¶det (VaflodvF) i Ã¤ndpunkterna i staven
 
-% Beräknar värmeflödet (VaflodvF) i ändpunkterna i staven
+tempLeft = - a*k*((-y(3) + 4*y(2) - 3*y(1))/(2*h));        % VÃ¤rmeflÃ¶det i vÃ¤ster Ã¤nde av staven
 
-Vaflodv = - a*k*((-y(3) + 4*y(2) - 3*y(1))/(2*h));        % Värmeflödet i väster ände av staven
+tempRight = -( a*k*((-y(n) + 4*y(n-1) - 3*y(n-2))/(2*h)));    % VÃ¤rmeflÃ¶det i hÃ¶ger Ã¤nde av staven  
 
-VFh = -( a*k*((-y(n) + 4*y(n-1) - 3*y(n-2))/(2*h)));    % Värmeflödet i höger ände av staven  
+disp(['VÃ¤rmeflÃ¶det i vÃ¤nster: ' num2str(tempLeft) ', hÃ¶ger Ã¤nde: ' num2str(tempRight) '.'])
 
-disp(['Värmeflödet i vänster ände av staven är ' num2str(Vaflodv) ' och i höger ände ' num2str(VFh) '.'])
-
-% OBS!! Negativt tecken framför värmeflödet bör betyda att värme avges, och motsatt för positivt.
+% OBS!! Negativt tecken framfÃ¶r vÃ¤rmeflÃ¶det bÃ¶r betyda att vÃ¤rme avges, och motsatt fÃ¶r positivt.
